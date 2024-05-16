@@ -60,6 +60,9 @@ try:
     from text_generation_server.models.flash_cohere import (
         FlashCohere,
     )
+    from text_generation_server.models.flash_omegaflash import (
+        FlashOmegaFlash,
+    )
     from text_generation_server.models.flash_gemma import (
         FlashGemma,
     )
@@ -94,6 +97,7 @@ if FLASH_ATTENTION:
     __all__.append(FlashStarcoder2)
     __all__.append(FlashGemma)
     __all__.append(FlashCohere)
+    __all__.append(FlashOmegaFlash)
 
 MAMBA_AVAILABLE = True
 try:
@@ -382,6 +386,28 @@ def get_model(
             )
         elif sharded:
             raise NotImplementedError(FLASH_ATT_ERROR_MESSAGE.format("Sharded Cohere"))
+        else:
+            return CausalLM(
+                model_id,
+                revision,
+                quantize=quantize,
+                use_medusa=use_medusa,
+                dtype=dtype,
+                trust_remote_code=trust_remote_code,
+            )
+
+    if model_type == "omegaflash":
+        if FLASH_ATTENTION:
+            return FlashOmegaFlash(
+                model_id,
+                revision,
+                quantize=quantize,
+                use_medusa=use_medusa,
+                dtype=dtype,
+                trust_remote_code=trust_remote_code,
+            )
+        elif sharded:
+            raise NotImplementedError(FLASH_ATT_ERROR_MESSAGE.format("Sharded OmegaFlash"))
         else:
             return CausalLM(
                 model_id,
