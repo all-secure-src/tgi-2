@@ -57,9 +57,6 @@ try:
     from text_generation_server.models.flash_qwen2 import (
         FlashQwen2,
     )
-    from text_generation_server.models.flash_omeganeo import (
-        FlashOmegaNeo,
-    )
     from text_generation_server.models.flash_cohere import (
         FlashCohere,
     )
@@ -97,7 +94,6 @@ if FLASH_ATTENTION:
     __all__.append(FlashDbrx)
     __all__.append(FlashPhi)
     __all__.append(FlashQwen2)
-    __all__.append(FlashOmegaNeo)
     __all__.append(FlashStarcoder2)
     __all__.append(FlashGemma)
     __all__.append(FlashCohere)
@@ -577,31 +573,7 @@ def get_model(
                 dtype=dtype,
                 trust_remote_code=trust_remote_code,
             )
-
-    if model_type == "omeganeo":
-        sliding_window = config_dict.get("sliding_window", -1)
-        if (
-            (sliding_window is None or sliding_window == -1) and FLASH_ATTENTION
-        ) or HAS_FLASH_ATTN_V2_CUDA:
-            return FlashOmegaNeo(
-                model_id,
-                revision,
-                quantize=quantize,
-                dtype=dtype,
-                trust_remote_code=trust_remote_code,
-            )
-        elif sharded:
-            raise NotImplementedError(FLASH_ATT_ERROR_MESSAGE.format("Sharded OmegaNeo"))
-        else:
-            return CausalLM(
-                model_id,
-                revision,
-                quantize=quantize,
-                use_medusa=use_medusa,
-                dtype=dtype,
-                trust_remote_code=trust_remote_code,
-            )
-
+    
     if model_type == "opt":
         return OPTSharded(
             model_id,
